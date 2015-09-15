@@ -31,7 +31,7 @@ app.on('error', function(err, ctx){
 const executeSandboxed = function(code) {
   return new Promise(function(resolve) {
     let s = new Sandbox();
-    s.run(code, resolve);
+    s.run(code, (res) => resolve(res.result));
   })
 }
 
@@ -39,7 +39,9 @@ const api = router();
 api.post('/', function *() {
   if (this.request.body.token === token || env === 'development') {
     const result = yield executeSandboxed(this.request.body.text);
-    this.body = result;
+    const out = `User ${this.request.body.user_name} snippet: \n\n${this.request.body.text}\n\nresult: \n\n${result}`
+
+    this.body = out;
   } else {
     this.body = "Ops ... looks like you aren't a team member";
   }
